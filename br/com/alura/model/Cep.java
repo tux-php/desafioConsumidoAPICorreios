@@ -11,17 +11,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 public class Cep {
-    private String cep;
     private String url;
-
-    public String getCep() {
-        return cep;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
     public EnderecoRecord buscaCep(String numcep) throws IOException, InterruptedException {
         url = "https://viacep.com.br/ws/"+numcep+"/json/";
 

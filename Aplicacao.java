@@ -2,15 +2,8 @@ import br.com.alura.exception.ExceptionErroCep;
 import br.com.alura.model.Arquivo;
 import br.com.alura.model.Cep;
 import br.com.alura.model.EnderecoRecord;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
-
 import java.io.*;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -32,25 +25,21 @@ public class Aplicacao {
 
                     Cep cep = new Cep();
                     EnderecoRecord url = cep.buscaCep(numcep);
-                    System.out.println(url);
-
-
                     String dadosEndereco = url.printEnderecoRcd();
 
-
-                    String[] quebraEndereco = dadosEndereco.split("\n");
+                    String[] listaEndereco = dadosEndereco.split("\n");
+                    //Verifica se CEP encontra-se na lista enderecos.
                     if(enderecos.isEmpty() || (!enderecos.contains("CEP: " + cepCorrigido))){
-                        for(String end: quebraEndereco){
+                        for(String end: listaEndereco){
                             enderecos.add(end);
                         }
                         jsonLista.add(cep.cepJson(numcep));
                         System.out.println("CEP: " + cepCorrigido + " adicionado com sucesso!");
                     }else{
-                        System.out.println("CEP já cadastrado.");
+                        System.out.println("CEP já cadastrado!");
                     }
                     Arquivo arquivo = new Arquivo();
                     arquivo.salvarArquivoJson(jsonLista);
-                    System.out.println(enderecos);
 
                     arquivo.lerArquivoJson();
 
