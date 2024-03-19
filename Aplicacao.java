@@ -1,7 +1,9 @@
 import br.com.alura.exception.ExceptionErroCep;
+import br.com.alura.model.Arquivo;
 import br.com.alura.model.Cep;
 import br.com.alura.model.EnderecoRecord;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 
 import java.io.*;
@@ -29,25 +31,11 @@ public class Aplicacao {
                     String cepCorrigido = adicionarHifenNoCep(numcep);
 
                     Cep cep = new Cep();
-                    String url = cep.buscaCep(numcep);
+                    EnderecoRecord url = cep.buscaCep(numcep);
                     System.out.println(url);
 
-                    HttpClient client = HttpClient.newHttpClient();
-                    HttpRequest request = HttpRequest.newBuilder()
-                            .uri(URI.create(url))
-                            .build();
 
-                    HttpResponse<String> response =
-                            client.send(request, HttpResponse.BodyHandlers.ofString());
-
-                    if(response.body().contains("erro")){
-                        throw new ExceptionErroCep("CEP não encontrado");
-                    }
-                    String json = response.body();
-
-                    Gson gson = new Gson();
-                    EnderecoRecord objJson = gson.fromJson(json, EnderecoRecord.class);
-                    String dadosEndereco = objJson.printEnderecoRcd();
+                    String dadosEndereco = url.printEnderecoRcd();
 
 
                     String[] quebraEndereco = dadosEndereco.split("\n");
@@ -55,29 +43,17 @@ public class Aplicacao {
                         for(String end: quebraEndereco){
                             enderecos.add(end);
                         }
-
-                        jsonLista.add(json);
+                        jsonLista.add(cep.cepJson(numcep));
                         System.out.println("CEP: " + cepCorrigido + " adicionado com sucesso!");
                     }else{
                         System.out.println("CEP já cadastrado.");
                     }
-
-                    BufferedWriter writer = new BufferedWriter(new FileWriter("enderecos.txt"));
-                    writer.write(String.valueOf(jsonLista));
-                    writer.close();
-
+                    Arquivo arquivo = new Arquivo();
+                    arquivo.salvarArquivoJson(jsonLista);
                     System.out.println(enderecos);
 
-                    BufferedReader arquivo = new BufferedReader(new FileReader("enderecos.txt"));
-                    String lerArquivo;
-                    System.out.println("Lendo arquivo:");
-                    while((lerArquivo = arquivo.readLine()) != null){
-                        String[] value = lerArquivo.split("\n");
-                        for(String val: value){
-                            System.out.println(val);
-                        }
-                    }
-                    arquivo.close();
+                    arquivo.lerArquivoJson();
+
                 }catch (ExceptionErroCep | IllegalArgumentException e){
                     System.out.println(e.getMessage());
                 }catch (JsonSyntaxException e){
